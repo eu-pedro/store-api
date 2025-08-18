@@ -24,7 +24,11 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 
 // src/server.ts
 var import_fastify = __toESM(require("fastify"), 1);
+var import_cors = __toESM(require("@fastify/cors"), 1);
 var app = (0, import_fastify.default)({ logger: true });
+app.register(import_cors.default, {
+  origin: true
+});
 var mouses = [
   {
     name: "Logitech MX Master 3s",

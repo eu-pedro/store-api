@@ -4,9 +4,13 @@
   "description": "",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": "22"
+  },
   "scripts": {
     "dev": "node --experimental-strip-types --watch src/server.ts",
-    "build": "tsup src/server.ts --format esm,cjs --out-dir dist --dts"
+    "build": "tsup src",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^24.3.0",
     "tsup": "^8.5.0",
+    "tsx": "^4.20.4",
     "typescript": "^5.9.2"
   }
 }
