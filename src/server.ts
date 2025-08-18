@@ -273,8 +273,8 @@ app.get("/product/:name", async (request, reply) => {
   return reply.status(200).send(product);
 })
 
-const port = Number(process.env.PORT ?? 3333);
-const host = process.env.HOST ?? "0.0.0.0";
+const port = Number(3333);
+const host = "0.0.0.0";
 
 app
   .listen({ port, host })

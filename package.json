@@ -8,7 +8,7 @@
     "node": "22"
   },
   "scripts": {
-    "dev": "node --experimental-strip-types --watch src/server.ts",
+    "dev": "tsx src/server.ts",
     "build": "tsup src",
     "start": "node dist/server.js"
   },
