@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --experimental-strip-types --watch src/server.ts",
-    "build": "tsup src/server.ts --format esm,cjs --dts false --out-dir dist"
+    "build": "tsup src/server.ts --format esm,cjs --out-dir dist --dts"
   },
   "keywords": [],
   "author": "",
