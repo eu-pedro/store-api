@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "node --experimental-strip-types --watch src/server.ts",
-    "build": "tsup src/server.ts --out-dir dist --dts build --output public"
+    "build": "tsup src/server.ts --out-dir dist --dts"
   },
   "keywords": [],
   "author": "",
