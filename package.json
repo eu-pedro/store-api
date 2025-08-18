@@ -5,7 +5,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "node --experimental-strip-types --watch src/server.ts"
+    "dev": "node --experimental-strip-types --watch src/server.ts",
+    "build": "tsup src/server.ts --format esm,cjs --dts false --out-dir dist"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "tsup": "^8.5.0",
     "typescript": "^5.9.2"
   }
 }
