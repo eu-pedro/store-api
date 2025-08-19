@@ -2,7 +2,7 @@ import fastify from "fastify";
 import cors from "@fastify/cors"
 
 const app = fastify({ logger: true });
-await app.register(cors, {
+app.register(cors, {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
