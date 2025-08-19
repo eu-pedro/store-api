@@ -138,8 +138,6 @@ const headseats = [
   }
 ]
 
-
-
 const mousepads = [
   {
     name: "SteelSeries QcK+",
@@ -177,9 +175,6 @@ const mousepads = [
     price: 169.99
   }
 ]
-
-
-
 const monitors = [
   {
     name: "LG 27GL850",
@@ -222,8 +217,6 @@ const monitors = [
     image: "https://w7.pngwing.com/pngs/442/677/png-transparent-dell-monitors-led-backlit-lcd-computer-monitor-video-card-monitor-television-electronics-computer.png"
   }
 ]
-
-
 const peripherals = {
   mouses,
   keyboards,
@@ -232,57 +225,64 @@ const peripherals = {
   monitors,
 } as const;
 
-app.get("/products", async (request, reply) => {
-  const query = request.query as { name?: string };
+async function start() {
+  const app = Fastify({ logger: true });
 
-  if (!query?.name) {
-    return reply.status(400).send({
-      message: "Informe um produto para pesquisar.",
-      validCategories: Object.keys(peripherals)
-    });
-  }
-
-  const key = query.name.toLowerCase() as keyof typeof peripherals;
-  const list = peripherals[key];
-
-  if (!list) {
-    return reply.code(404).send({
-      message: "Categoria não encontrada",
-      validCategories: Object.keys(peripherals),
-    });
-  }
-
-  return reply.status(200).send({ products: list });
-});
-
-app.get("/product/:name", async (request, reply) => {
-  const { name } = request.params as { name: string };
-
-  const categories = Object.values(peripherals).flat();
-
-  const product = categories.find(
-    (p) =>
-      p.slug.toLowerCase() === name.toLowerCase() ||
-      p.name.toLowerCase() === name.toLowerCase()
-  );
-
-  if (!product) {
-    return reply.code(404).send({
-      message: "Produto não encontrado",
-      example: "/product/logitech-mx-master-3s",
-    });
-  }
-
-  return reply.status(200).send(product);
-})
-
-const port = Number(3333);
-const host = "0.0.0.0";
-
-app
-  .listen({ port, host })
-  .then(() => app.log.info(`HTTP server running on http://${host}:${port}`))
-  .catch((err) => {
-    app.log.error(err);
-    process.exit(1);
+  await app.register(cors, {
+    origin: (origin, cb) => {
+      if (!origin || origin === "null") return cb(null, true);
+      return cb(null, true)
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   });
+
+  app.get("/products", async (request, reply) => {
+    const query = request.query as { name?: string };
+    if (!query?.name) {
+      return reply.status(400).send({
+        message: "Informe um produto para pesquisar.",
+        validCategories: Object.keys(peripherals),
+      });
+    }
+    const key = query.name.toLowerCase() as keyof typeof peripherals;
+    const list = peripherals[key];
+    if (!list) {
+      return reply.code(404).send({
+        message: "Categoria não encontrada",
+        validCategories: Object.keys(peripherals),
+      });
+    }
+    return reply.status(200).send({ products: list });
+  });
+
+  app.get("/product/:name", async (request, reply) => {
+    const { name } = request.params as { name: string };
+    const categories = Object.values(peripherals).flat();
+    const product = categories.find(
+      (p) =>
+        p.slug.toLowerCase() === name.toLowerCase() ||
+        p.name.toLowerCase() === name.toLowerCase()
+    );
+    if (!product) {
+      return reply.code(404).send({
+        message: "Produto não encontrado",
+        example: "/product/logitech-mx-master-3s",
+      });
+    }
+    return reply.status(200).send(product);
+  })
+
+  await app.ready()
+
+  const port = Number(process.env.PORT ?? 3333);
+  const host = "0.0.0.0";
+  await app.listen({ port, host });
+  app.log.info(`HTTP server running on http://${host}:${port}`);
+}
+
+// chuta a app
+start().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
