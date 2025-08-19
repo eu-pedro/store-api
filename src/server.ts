@@ -265,6 +265,15 @@ async function start() {
     return reply.status(200).send(product);
   })
 
+  app.addHook("onSend", (req, reply, payload, done) => {
+    const origin = req.headers.origin ?? "*";
+    reply.header("Access-Control-Allow-Origin", origin === "null" ? "*" : origin);
+    reply.header("Vary", "Origin");
+    reply.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    done();
+  });
+
   await app.ready()
 
   const port = Number(process.env.PORT ?? 3333);
