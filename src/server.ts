@@ -1,14 +1,6 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors"
 
-const app = Fastify({ logger: true });
-await app.register(cors, {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false
-});
-
 const mouses = [
   {
     name: "Logitech MX Master 3s",
