@@ -2,9 +2,12 @@ import fastify from "fastify";
 import cors from "@fastify/cors"
 
 const app = fastify({ logger: true });
-app.register(cors, {
-  origin: "*"
-})
+await app.register(cors, {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+});
 
 const mouses = [
   {
