@@ -229,6 +229,11 @@ async function start() {
     allowedHeaders: ["Content-Type", "Authorization"],
   });
 
+  app.get("/__health", async (req, reply) => {
+    reply.header("X-Debug-CORS", "on");
+    return { ok: true };
+  });
+
   app.get("/products", async (request, reply) => {
     const query = request.query as { name?: string };
     if (!query?.name) {
