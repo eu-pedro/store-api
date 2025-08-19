@@ -25,10 +25,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // src/server.ts
 var import_fastify = __toESM(require("fastify"), 1);
 var import_cors = __toESM(require("@fastify/cors"), 1);
-var app = (0, import_fastify.default)({ logger: true });
-app.register(import_cors.default, {
-  origin: true
-});
 var mouses = [
   {
     name: "Logitech MX Master 3s",
@@ -226,41 +222,67 @@ var peripherals = {
   mousepads,
   monitors
 };
-app.get("/products", async (request, reply) => {
-  const query = request.query;
-  if (!query?.name) {
-    return reply.status(400).send({
-      message: "Informe um produto para pesquisar.",
-      validCategories: Object.keys(peripherals)
-    });
-  }
-  const key = query.name.toLowerCase();
-  const list = peripherals[key];
-  if (!list) {
-    return reply.code(404).send({
-      message: "Categoria n\xE3o encontrada",
-      validCategories: Object.keys(peripherals)
-    });
-  }
-  return reply.status(200).send({ products: list });
-});
-app.get("/product/:name", async (request, reply) => {
-  const { name } = request.params;
-  const categories = Object.values(peripherals).flat();
-  const product = categories.find(
-    (p) => p.slug.toLowerCase() === name.toLowerCase() || p.name.toLowerCase() === name.toLowerCase()
-  );
-  if (!product) {
-    return reply.code(404).send({
-      message: "Produto n\xE3o encontrado",
-      example: "/product/logitech-mx-master-3s"
-    });
-  }
-  return reply.status(200).send(product);
-});
-var port = Number(process.env.PORT ?? 3333);
-var host = process.env.HOST ?? "0.0.0.0";
-app.listen({ port, host }).then(() => app.log.info(`HTTP server running on http://${host}:${port}`)).catch((err) => {
-  app.log.error(err);
+async function start() {
+  const app = (0, import_fastify.default)({ logger: true });
+  await app.register(import_cors.default, {
+    origin: (origin, cb) => {
+      if (!origin || origin === "null") return cb(null, true);
+      return cb(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  });
+  app.get("/__health", async (req, reply) => {
+    reply.header("X-Debug-CORS", "on");
+    return { ok: true };
+  });
+  app.get("/products", async (request, reply) => {
+    const query = request.query;
+    if (!query?.name) {
+      return reply.status(400).send({
+        message: "Informe um produto para pesquisar.",
+        validCategories: Object.keys(peripherals)
+      });
+    }
+    const key = query.name.toLowerCase();
+    const list = peripherals[key];
+    if (!list) {
+      return reply.code(404).send({
+        message: "Categoria n\xE3o encontrada",
+        validCategories: Object.keys(peripherals)
+      });
+    }
+    return reply.status(200).send({ products: list });
+  });
+  app.get("/product/:name", async (request, reply) => {
+    const { name } = request.params;
+    const categories = Object.values(peripherals).flat();
+    const product = categories.find(
+      (p) => p.slug.toLowerCase() === name.toLowerCase() || p.name.toLowerCase() === name.toLowerCase()
+    );
+    if (!product) {
+      return reply.code(404).send({
+        message: "Produto n\xE3o encontrado",
+        example: "/product/logitech-mx-master-3s"
+      });
+    }
+    return reply.status(200).send(product);
+  });
+  app.addHook("onSend", (req, reply, payload, done) => {
+    const origin = req.headers.origin ?? "*";
+    reply.header("Access-Control-Allow-Origin", origin === "null" ? "*" : origin);
+    reply.header("Vary", "Origin");
+    reply.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    reply.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    done();
+  });
+  await app.ready();
+  const port = Number(process.env.PORT ?? 3333);
+  const host = "0.0.0.0";
+  await app.listen({ port, host });
+  app.log.info(`HTTP server running on http://${host}:${port}`);
+}
+start().catch((err) => {
+  console.error(err);
   process.exit(1);
 });
